@@ -12,13 +12,12 @@ st.title("📊 SHAP Analysis - Direct UCI Dataset Load")
 @st.cache_data
 def load_data():
     bank_marketing = fetch_ucirepo(id=222)
-    st.write("bank_marketing.variables keys:", bank_marketing.variables.keys())
-    st.write("bank_marketing.variables:", bank_marketing.variables)
 
-    # اگر نام ستون‌ها را مستقیماً نداشته باشیم
-    # فرض کنیم خود features numpy array است، پس باید آن را DataFrame کنیم و نام ستون‌ها را بسازیم:
-    X = pd.DataFrame(bank_marketing.data.features)
+    feature_names = [bank_marketing.variables[i]['name'] for i in range(len(bank_marketing.variables))]
+
+    X = pd.DataFrame(bank_marketing.data.features, columns=feature_names)
     y = pd.Series(bank_marketing.data.targets, name='y')
+
     df = pd.concat([X, y], axis=1)
     return df
 
