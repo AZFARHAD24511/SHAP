@@ -1,20 +1,81 @@
 # SHAP
-## What is SHAP?
+## 🔍 What is SHAP?
 
-**SHAP (SHapley Additive exPlanations)** is a method to explain the output of any machine learning model. It is based on concepts from cooperative game theory, particularly the Shapley values, which were originally developed to fairly distribute payout among players depending on their contribution to the total gain.
+**SHAP (SHapley Additive exPlanations)** is a unified framework for interpreting machine learning model predictions. It aims to answer the fundamental question:
 
-### How SHAP Works
+> "How much did each feature contribute to a specific prediction?"
 
-- SHAP assigns each feature an importance value for a particular prediction.
-- It quantifies the contribution of each feature to pushing the prediction from the average prediction (baseline) to the actual prediction for a single instance.
-- By aggregating these values across the dataset, SHAP helps to explain how each feature influences the model’s output both locally (for individual predictions) and globally (overall feature importance).
+SHAP combines ideas from game theory and local explanations to attribute the output of a model to its input features in a consistent and theoretically sound way.
 
-### Why Use SHAP?
+---
 
-- It provides **consistent and locally accurate explanations**.
-- Works with any model (tree-based, linear, neural networks, etc.).
-- Offers detailed insights into feature interactions and the direction and magnitude of effects.
-- Helps build **trust** in machine learning models by making them interpretable.
+## 🧠 The Theory Behind SHAP: Shapley Values
+
+SHAP is based on **Shapley values** from cooperative game theory, introduced by Lloyd Shapley in 1953. In this setting:
+
+- The **"game"** is the model prediction task.
+- The **"players"** are the features (input variables).
+- The **"payout"** is the prediction for a given instance.
+
+The Shapley value fairly distributes the total payout (the model prediction) among all the features based on their contributions.
+
+---
+
+## 📐 Mathematical Definition
+
+For a model $$f(x)$$ and an input instance $$x = (x_1, x_2, ..., x_n)$$, the Shapley value $$\phi_i$$ for feature $$i$$ is defined as:
+
+$$
+\phi_i = \sum_{S \subseteq N \setminus \{i\}} \frac{|S|! (|N|-|S|-1)!}{|N|!} \left[ f_{S \cup \{i\}}(x_{S \cup \{i\}}) - f_S(x_S) \right]
+$$
+
+Where:
+- $$N$$: the set of all features
+- $$S$$: a subset of features that does **not** include feature $$i$$
+- $$f_S(x_S)$$: model prediction using only the features in subset $$S$$
+- $$\phi_i$$: the marginal contribution of feature $$i$$, averaged over all possible subsets $$S$$
+
+**Intuition:**  
+We average the change in the model output when feature $$i$$ is added to all possible subsets of features.
+
+---
+
+## ⚙️ SHAP in Practice
+
+- Calculating exact Shapley values is **computationally expensive** (exponential time).
+- SHAP introduces efficient approximations:
+  - **TreeSHAP** for tree-based models (e.g., XGBoost, LightGBM, Random Forest) — runs in polynomial time.
+  - **KernelSHAP** for model-agnostic use — uses sampling-based methods.
+
+---
+
+## ✅ Desirable Properties of SHAP
+
+SHAP values satisfy important axioms:
+
+1. **Additivity:**
+   $$f(x) = E[f(x)] + \sum_i \phi_i$$
+   The model prediction equals the expected value plus the sum of SHAP values.
+
+2. **Consistency:**  
+   If a model changes such that a feature's contribution increases, its SHAP value should not decrease.
+
+3. **Null player:**  
+   If a feature has no impact on the model, its SHAP value will be zero.
+
+---
+
+## 📊 Why Use SHAP?
+
+SHAP provides:
+- **Local explanations**: for individual predictions
+- **Global insights**: by aggregating local SHAP values
+- **Fair attribution**: based on strong theoretical guarantees
+
+It is one of the most powerful tools for **interpretable machine learning** today.
+
+---
+
 
 ### In This Project
 
