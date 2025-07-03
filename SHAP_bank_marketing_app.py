@@ -12,32 +12,14 @@ st.title("📊 SHAP Analysis - Direct UCI Dataset Load")
 @st.cache_data
 def load_data():
     bank_marketing = fetch_ucirepo(id=222)
-
-    # گرفتن نام ستون‌ها
-    feature_names = bank_marketing.variables['name'].tolist()
-
-    # اگر نام‌های ستون تکراری باشند، آن‌ها را منحصربه‌فرد می‌کنیم
-    if len(set(feature_names)) != len(feature_names):
-        feature_names = pd.io.parsers.ParserBase({'names': feature_names})._maybe_dedup_names(feature_names)
-
-    # ساخت دیتافریم ویژگی‌ها
-    X = pd.DataFrame(bank_marketing.data.features, columns=feature_names)
-
-    # گرفتن هدف و تبدیل ایمن به Series
-    targets = bank_marketing.data.targets
-    if isinstance(targets, pd.DataFrame):
-        y = targets.iloc[:, 0]
-    elif isinstance(targets, pd.Series):
-        y = targets
-    else:
-        y = pd.Series(targets)
-    y.name = 'y'
-
-    # ادغام ویژگی‌ها و هدف
+    X = pd.DataFrame(bank_marketing.data.features, columns=bank_marketing.variables['name'][:-1])  # تمام ستون‌ها به جز y
+    y = pd.Series(bank_marketing.data.targets[:,0], name='y')  # ستون هدف
+    
     df = pd.concat([X, y], axis=1)
+    
+    # حذف ردیف‌های دارای مقادیر مفقود
+    df = df.dropna()
     return df
-
-
 
 df = load_data()
 st.success(f"Loaded dataset with {df.shape[0]} rows and {df.shape[1]} columns.")
