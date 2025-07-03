@@ -33,6 +33,7 @@ if st.button("Run SHAP Analysis"):
 
         X = df.drop(columns=['y'])
         y = df['y'].map({'no': 0, 'yes': 1})
+        X = X.drop(columns=['contact', 'poutcome'])
 
         X_enc = X.copy()
         for col in X_enc.select_dtypes(include=['object']).columns:
