@@ -12,10 +12,24 @@ st.title("📊 SHAP Analysis - Direct UCI Dataset Load")
 @st.cache_data
 def load_data():
     bank_marketing = fetch_ucirepo(id=222)
-    X = pd.DataFrame(bank_marketing.data.features, columns=bank_marketing.variables['features'])
+    
+    # بررسی ساختار متغیرها:
+    st.write("Variables metadata:", bank_marketing.variables)
+    
+    # اگر کلید 'features' وجود ندارد، احتمالاً نام درست 'feature' است:
+    if 'features' in bank_marketing.variables:
+        feature_names = bank_marketing.variables['features']
+    elif 'feature' in bank_marketing.variables:
+        feature_names = bank_marketing.variables['feature']
+    else:
+        # اگر کلید مناسب نبود، فرض کنیم داده ها ستون های نام ندارند:
+        feature_names = [f'feature_{i}' for i in range(len(bank_marketing.data.features[0]))]
+    
+    X = pd.DataFrame(bank_marketing.data.features, columns=feature_names)
     y = pd.Series(bank_marketing.data.targets, name='y')
     df = pd.concat([X, y], axis=1)
     return df
+
 
 df = load_data()
 st.success(f"Loaded dataset with {df.shape[0]} rows and {df.shape[1]} columns.")
