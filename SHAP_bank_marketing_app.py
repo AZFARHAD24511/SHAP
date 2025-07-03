@@ -15,7 +15,7 @@ def load_data():
     y = bank_marketing.data.targets.iloc[:, 0]  # درست دسترسی به ستون 'y'
     
     df = pd.concat([X, y], axis=1)
-    df = df.dropna()
+    # df = df.dropna()
     return df
 
 
