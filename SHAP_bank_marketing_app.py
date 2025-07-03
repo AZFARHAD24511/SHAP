@@ -15,20 +15,21 @@ def load_data():
     feature_names = bank_marketing.variables['name'].tolist()
     X = pd.DataFrame(bank_marketing.data.features, columns=feature_names)
 
-    # بررسی ساختار target
     targets = bank_marketing.data.targets
 
-    if isinstance(targets, pd.DataFrame):
-        if targets.shape[1] == 1:
-            y = targets.iloc[:, 0].rename('y')
+    # بررسی نوع targets و استخراج درست سری هدف
+    try:
+        if isinstance(targets, pd.DataFrame):
+            y = targets.iloc[:, 0]
+        elif isinstance(targets, pd.Series):
+            y = targets
         else:
-            raise ValueError("Targets has more than one column.")
-    elif isinstance(targets, pd.Series):
-        y = targets.rename('y')
-    elif hasattr(targets, 'shape') and len(targets.shape) == 2 and targets.shape[1] == 1:
-        y = pd.Series(targets[:, 0], name='y')
-    else:
-        y = pd.Series(targets, name='y')
+            y = pd.Series(targets)
+
+        y.name = 'y'  # تعیین نام استاندارد برای ستون هدف
+    except Exception as e:
+        st.error(f"❌ خطا در استخراج ستون هدف: {e}")
+        st.stop()
 
     df = pd.concat([X, y], axis=1)
     return df
