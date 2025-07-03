@@ -12,27 +12,31 @@ st.title("📊 SHAP Analysis - Direct UCI Dataset Load")
 @st.cache_data
 def load_data():
     bank_marketing = fetch_ucirepo(id=222)
+
+    # گرفتن نام ستون‌ها
     feature_names = bank_marketing.variables['name'].tolist()
+
+    # اگر نام‌های ستون تکراری باشند، آن‌ها را منحصربه‌فرد می‌کنیم
+    if len(set(feature_names)) != len(feature_names):
+        feature_names = pd.io.parsers.ParserBase({'names': feature_names})._maybe_dedup_names(feature_names)
+
+    # ساخت دیتافریم ویژگی‌ها
     X = pd.DataFrame(bank_marketing.data.features, columns=feature_names)
 
+    # گرفتن هدف و تبدیل ایمن به Series
     targets = bank_marketing.data.targets
+    if isinstance(targets, pd.DataFrame):
+        y = targets.iloc[:, 0]
+    elif isinstance(targets, pd.Series):
+        y = targets
+    else:
+        y = pd.Series(targets)
+    y.name = 'y'
 
-    # بررسی نوع targets و استخراج درست سری هدف
-    try:
-        if isinstance(targets, pd.DataFrame):
-            y = targets.iloc[:, 0]
-        elif isinstance(targets, pd.Series):
-            y = targets
-        else:
-            y = pd.Series(targets)
-
-        y.name = 'y'  # تعیین نام استاندارد برای ستون هدف
-    except Exception as e:
-        st.error(f"❌ خطا در استخراج ستون هدف: {e}")
-        st.stop()
-
+    # ادغام ویژگی‌ها و هدف
     df = pd.concat([X, y], axis=1)
     return df
+
 
 
 df = load_data()
