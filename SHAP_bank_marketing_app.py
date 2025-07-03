@@ -9,17 +9,15 @@ from ucimlrepo import fetch_ucirepo
 
 st.title("📊 SHAP Analysis - Direct UCI Dataset Load")
 
-@st.cache_data
 def load_data():
     bank_marketing = fetch_ucirepo(id=222)
-    X = pd.DataFrame(bank_marketing.data.features, columns=bank_marketing.variables['name'][:-1])  # تمام ستون‌ها به جز y
-    y = pd.Series(bank_marketing.data.targets[:,0], name='y')  # ستون هدف
+    X = pd.DataFrame(bank_marketing.data.features, columns=bank_marketing.variables['name'][:-1])
+    y = bank_marketing.data.targets.iloc[:, 0]  # درست دسترسی به ستون 'y'
     
     df = pd.concat([X, y], axis=1)
-    
-    # حذف ردیف‌های دارای مقادیر مفقود
     df = df.dropna()
     return df
+
 
 df = load_data()
 st.success(f"Loaded dataset with {df.shape[0]} rows and {df.shape[1]} columns.")
