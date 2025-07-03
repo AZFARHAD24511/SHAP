@@ -14,18 +14,25 @@ def load_data():
     bank_marketing = fetch_ucirepo(id=222)
     feature_names = bank_marketing.variables['name'].tolist()
     X = pd.DataFrame(bank_marketing.data.features, columns=feature_names)
-    
+
+    # بررسی ساختار target
     targets = bank_marketing.data.targets
-    
-    # اگر targets آرایه numpy با ابعاد 2D است، ستون اول را جدا می‌کنیم
-    if hasattr(targets, 'shape') and len(targets.shape) > 1 and targets.shape[1] == 1:
-        y = pd.Series(targets[:, 0], name='target')
+
+    if isinstance(targets, pd.DataFrame):
+        if targets.shape[1] == 1:
+            y = targets.iloc[:, 0].rename('y')
+        else:
+            raise ValueError("Targets has more than one column.")
+    elif isinstance(targets, pd.Series):
+        y = targets.rename('y')
+    elif hasattr(targets, 'shape') and len(targets.shape) == 2 and targets.shape[1] == 1:
+        y = pd.Series(targets[:, 0], name='y')
     else:
-        # اگر targets قبلا سری یا 1D باشد
-        y = pd.Series(targets, name='target')
-        
+        y = pd.Series(targets, name='y')
+
     df = pd.concat([X, y], axis=1)
     return df
+
 
 df = load_data()
 st.success(f"Loaded dataset with {df.shape[0]} rows and {df.shape[1]} columns.")
