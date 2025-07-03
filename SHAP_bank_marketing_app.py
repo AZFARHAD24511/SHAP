@@ -11,13 +11,21 @@ st.title("📊 SHAP Analysis - Direct UCI Dataset Load")
 
 @st.cache_data
 def load_data():
-    bank_marketing = fetch_ucirepo(id=222)  # دیتاست بانک مارکتینگ
-    feature_names = bank_marketing.variables['name'].tolist()  # استخراج نام ستون‌ها
-    X = pd.DataFrame(bank_marketing.data.features, columns=feature_names)  # داده ویژگی‌ها
-    y = pd.Series(bank_marketing.data.targets, name='target')  # داده هدف
+    bank_marketing = fetch_ucirepo(id=222)
+    feature_names = bank_marketing.variables['name'].tolist()
+    X = pd.DataFrame(bank_marketing.data.features, columns=feature_names)
+    
+    targets = bank_marketing.data.targets
+    
+    # اگر targets آرایه numpy با ابعاد 2D است، ستون اول را جدا می‌کنیم
+    if hasattr(targets, 'shape') and len(targets.shape) > 1 and targets.shape[1] == 1:
+        y = pd.Series(targets[:, 0], name='target')
+    else:
+        # اگر targets قبلا سری یا 1D باشد
+        y = pd.Series(targets, name='target')
+        
     df = pd.concat([X, y], axis=1)
     return df
-
 
 df = load_data()
 st.success(f"Loaded dataset with {df.shape[0]} rows and {df.shape[1]} columns.")
